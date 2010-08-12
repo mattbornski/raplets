@@ -1,0 +1,48 @@
+#!/usr/bin/python
+
+import getpass
+import simplejson
+import urlparse
+import BaseHTTPServer
+import traceback
+
+import kickball
+
+class Raplet(BaseHTTPServer.BaseHTTPRequestHandler):
+    creds = None
+    def __init__(self, *args, **kwargs):
+        self.database = kickball.database(self.creds)
+        BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
+    def do_GET(self):
+        try:
+            qs = (self.path + '?').split('?')[1]
+            args = dict(urlparse.parse_qsl(qs))
+            if 'callback' in args:
+                if args.get('show', None) == 'metadata':
+                    result = {'name':'mattborn', 'description':'desc', 'welcome_text':'welcome', 'icon_url':'http://mattborn.net/icon.jpg', 'preview_url':'http://mattborn.net/icon.jpg', 'provider_name':'mattborn', 'provider_url':'http://mattborn.net'}
+                else:
+                    p = self.database.player(email = args['email'])
+                    result = {'status':200, 'html':p.html()}
+                self.send_response(200)
+                self.send_header('Content-type', 'text/javascript')
+                self.end_headers()
+                text = args['callback'] + '(' + simplejson.dumps(result) + ')'
+                self.wfile.write(text)
+            else:
+                self.send_response(400)
+        except:
+            self.send_response(500)
+            print self.path
+            print traceback.format_exc()
+
+def main():
+    creds = {'username':'mattborn', 'password':getpass.getpass()}
+    try:
+        Raplet.creds = creds
+        server = BaseHTTPServer.HTTPServer(('', 5425), Raplet)
+        server.serve_forever()
+    except KeyboardInterrupt:
+        server.socket.close()
+
+if __name__ == '__main__':
+    main()
