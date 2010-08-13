@@ -2,9 +2,9 @@
 
 import cgi
 import simplejson
-import urlparse
-import BaseHTTPServer
 import traceback
+import urlparse
+import wsgiref
 
 import citations
 
@@ -52,10 +52,6 @@ class Database:
     pass
 
 
-########
-# Mode 1: WSGI application
-########
-
 # WSGI endpoint.  If we happen to be within a WSGI directory, and someone
 # points a browser at us, this will provide the Raplet response.
 def application(environ, start_response):
@@ -67,12 +63,8 @@ def application(environ, start_response):
     else:
         return ''
 
-########
-# Mode 2: stand alone web server
-########
-
-# A class to provide the Raplet response when we're operating as a
-# stand alone web server.
+# WSGI server.  If we don't happen to be within a WSGI directory, we'll
+# make it one.
 class Raplet(BaseHTTPServer.BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         self.db = Database()
