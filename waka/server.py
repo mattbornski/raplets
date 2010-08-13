@@ -19,7 +19,7 @@ class Raplet(BaseHTTPServer.BaseHTTPRequestHandler):
             args = dict(urlparse.parse_qsl(qs))
             if 'callback' in args:
                 if args.get('show', None) == 'metadata':
-                    result = {'name':'mattborn', 'description':'desc', 'welcome_text':'welcome', 'icon_url':'http://mattborn.net/icon.jpg', 'preview_url':'http://mattborn.net/icon.jpg', 'provider_name':'mattborn', 'provider_url':'http://mattborn.net'}
+                    result = {'name':'WAKA', 'description':'WAKA', 'welcome_text':'waka waka waka', 'icon_url':'http://raplets.mattborn.net/waka/icon.jpg', 'preview_url':'http://raplets.mattborn.net/waka/preview.jpg', 'provider_name':'Matt Born', 'provider_url':'http://raplets.mattborn.net/waka/'}
                 else:
                     p = self.database.player(email = args['email'])
                     result = {'status':200, 'html':p.html()}

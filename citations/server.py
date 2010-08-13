@@ -1,23 +1,24 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
+import cgi
 import simplejson
 import urlparse
 import BaseHTTPServer
 import traceback
 
-import citation
+import citations
 
 metadata = {
   'name':           'Citations',
   'description':    'Attempt to match academics with their articles.',
-  'welcome_text':   'Citations',
+  'welcome_text':   'Adding Citations will let you preview the articles written by people you correspond with quickly and easily.',
   'icon_url':       'http://raplets.mattborn.net/citations/icon.jpg',
-  'preview_url':    'http://raplets.mattborn.net/citations/icon.jpg',
-  'provider_name':  'Google Scholar',
-  'provider_url':   'http://scholar.google.com/',
+  'preview_url':    'http://raplets.mattborn.net/citations/preview.jpg',
+  'provider_name':  'Matt Born',
+  'provider_url':   'http://raplets.mattborn.net/citations/',
 }
 endpoint = {
-  'process':        citation.process,
+  'process':        citations.process,
   'bind_interface': '',
   'bind_port':      2483,
 }
@@ -26,7 +27,10 @@ endpoint = {
 # specified function and package the return value.
 def common(qs):
     try:
-        args = dict(urlparse.parse_qsl(qs))
+        try:
+            args = dict(urlparse.parse_qsl(qs))
+        except AttributeError:
+            args = dict(cgi.parse_qsl(qs))
         if 'callback' in args:
             if args.get('show', None) == 'metadata':
                 result = metadata
@@ -38,13 +42,11 @@ def common(qs):
                     result = {'html':''}
             result['status'] = 200
             text = args['callback'] + '(' + simplejson.dumps(result) + ')'
-            print text
             return (200, text)
         else:
             return (400, None)
     except:
-        print traceback.format_exc()
-        return (500, None)
+        return (500, traceback.format_exc())
 
 class Database:
     pass
@@ -62,6 +64,8 @@ def application(environ, start_response):
     start_response(str(status), [('Content-Type', 'text/javascript')])
     if body is not None:
         return body
+    else:
+        return ''
 
 ########
 # Mode 2: stand alone web server
