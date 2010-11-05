@@ -15,15 +15,15 @@ def application(environ, start_response):
     try:
         request = environ['REQUEST_URI'][1:].split('/')[0]
         dir = os.path.join(os.getcwd(), request)
-	if os.path.isfile(os.path.join(dir, 'server.py')):
-        	sys.path.append(dir)
-	        import server
-        	ret = server.application(environ, start_response)
-	        sys.path.pop()
-        	return ret
-	else:
-		start_response('404', [('content-type', 'text/plain')])
-		return '404'
+        if os.path.isfile(os.path.join(dir, 'server.py')):
+            sys.path.append(dir)
+            import server
+            ret = server.application(environ, start_response)
+            sys.path.pop()
+            return ret
+        else:
+            start_response('404', [('content-type', 'text/plain')])
+            return '404'
     except:
         start_response('500', [('content-type', 'text/plain')])
         return traceback.format_exc()
